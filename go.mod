@@ -1,4 +1,4 @@
-module github.com/bikeshack/chassis
+module github.com/alexlovelltroy/chassis
 
 go 1.20
 
