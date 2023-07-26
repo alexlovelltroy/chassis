@@ -3,6 +3,7 @@ package chassis
 import (
 	"database/sql"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	_ "github.com/lib/pq"
@@ -93,6 +94,11 @@ func Execute() {
 }
 
 func init() {
+	path, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	rootCmd.Use = filepath.Base(path)
 	rootCmd.AddCommand(ServeCmd)
 	rootCmd.AddCommand(MigrateCmd)
 
