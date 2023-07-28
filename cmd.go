@@ -12,6 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 var DBConfig PostgresConfig
@@ -76,11 +77,10 @@ to quickly create a Cobra application.`,
 		if cmd.Flag("debug").Value.String() == "true" {
 			log.SetLevel(log.DebugLevel)
 		}
-		if cmd.Flag("postgres").Value.String() != "" {
-			DBConfig = ParsePostgresConfig(cmd.Flag("postgres").Value.String())
-		} else {
-			DBConfig = DefaultPostgresConfig()
-		}
+		log.Debug("Setting up the database connection")
+		log.Debug("viper thinks our uri should be :" + viper.GetString("postgres"))
+		log.Debug("pflag thinks our uri should be :" + cmd.Flag("postgres").Value.String())
+		DBConfig = ParsePostgresConfig(viper.GetString("postgres"))
 	},
 }
 
@@ -106,9 +106,13 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
+	// Activate environment variable parsing
+	viper.BindEnv("postgres", "POSTGRES_URI")
+
 	// This is an examnple of a global flag.  We don't use a config file.  We prefer ENV variables and flags.
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chassis.yaml)")
 	rootCmd.PersistentFlags().StringP("postgres", "P", "postgresql://localhost:5432/mydb?user=other&password=secret", "Postgres connection string")
+	viper.BindPFlag("postgres", rootCmd.PersistentFlags().Lookup("postgres"))
 	rootCmd.PersistentFlags().BoolP("debug", "D", false, "Enable debug logging")
 
 	// Cobra also supports local flags, which will only run
